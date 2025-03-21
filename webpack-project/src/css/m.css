@@ -1,0 +1,33 @@
+@font-face {
+  font-family: "SourceHanSansCN-Regular";
+  src: url(../font/SourceHanSansCN-Regular.ttf) format("truetype");
+  font-style: normal;
+  font-display: fallback;
+}
+
+.img_100 {
+  width: 100%;
+  height: 100%;
+}
+
+.btn {
+  background-color: transparent;
+  outline: none;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+
+html {
+  font-size: calc(100vw/750 * 100);
+  font-size: -webkit-calc(100vw/750 * 100);
+  /* 适配safari */
+  min-height: 0vw;
+  user-select: none;
+}
+
+@media only screen and (min-width: 750px) {
+  html {
+    font-size: 75px;
+  }
+}

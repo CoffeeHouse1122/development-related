@@ -1,0 +1,59 @@
+/* 电脑端 */
+html.desktop {
+  font-size: calc(100vw/2560 * 100);
+  font-size: -webkit-calc(100vw/2560 * 100);
+  /* 适配safari */
+  min-height: 0vw;
+  user-select: none;
+}
+
+@media only screen and (max-width: 1200px) {
+  html.desktop {
+    font-size: 46.875px;
+  }
+}
+
+html.desktop,
+html.desktop body {
+  width: 100%;
+  min-width: 1200px;
+}
+
+/* 移动端 */
+html.mobile {
+  font-size: calc(100vw/750 * 100);
+  font-size: -webkit-calc(100vw/750 * 100);
+  /* 适配safari */
+  min-height: 0vw;
+  user-select: none;
+  width: 100%;
+}
+
+html.mobile body,
+html.mobile body #app {
+  width: 100%;
+}
+
+
+/* @media only screen and (min-width: 750px) {
+  html.mobile {
+    font-size: 75px;
+  }
+} */
+
+html {
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", Tahoma, Arial, sans-serif;;
+}
+
+.img_100 {
+  width: 100%;
+  -webkit-user-drag: none;
+}
+
+.btn {
+  background-color: transparent;
+  outline: none;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
