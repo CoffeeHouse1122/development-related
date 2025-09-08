@@ -2,6 +2,8 @@
 开发相关的工具、项目框架
 
 ## 项目框架
+- `base-project` : 简单项目框架，例如落地页。
+
 - `vue3-project` : vue3项目框架。
 
 - `webpack-project` : 传统项目框架，webpack打包编译。

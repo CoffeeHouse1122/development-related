@@ -1,0 +1,61 @@
+/* 1. 使用更直观的 box-sizing 模型 */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 2. 移除默认 margin */
+* {
+  margin: 0;
+}
+
+/* 3. 允许基于 rem 设置 font-size（更好地支持用户缩放） */
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%; /* 防止iOS横屏时字体放大 */
+}
+
+/* 4. 核心 body 默认值 */
+body {
+  line-height: 1.5; /* 无单位，作为乘数 */
+  -webkit-font-smoothing: antialiased; /* 在MacOS上让字体渲染更平滑 */
+}
+
+/* 5. 媒体元素设置为块级元素 */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%; /* 防止图片溢出容器 */
+}
+
+/* 6. 继承表单控件的字体，否则默认不继承 */
+input, button, textarea, select {
+  display: block;
+  font: inherit;
+}
+
+/* 7. 避免文本溢出 */
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+/* 8. 为根元素创建 stacking context，有利于模态框等组件的z-index管理 */
+#root, #__next {
+  isolation: isolate;
+}
+
+/* 9. 移除列表默认样式 */
+li,
+ol,
+ul {
+  list-style-type: none;
+}
+
+ul {
+  padding: 0;
+}
+
+/* 10. 处理a标签样式，移除下划线，继承颜色，设置鼠标为指针 */
+a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
