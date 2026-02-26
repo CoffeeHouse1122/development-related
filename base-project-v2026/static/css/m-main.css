@@ -1,0 +1,35 @@
+@font-face {
+  font-family: "Roboto-Regular";
+  src: url(../font/Roboto-Regular.woff2) format("woff2"),
+    url('../font/Roboto-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.img_100 {
+  width: 100%;
+  height: 100%;
+}
+
+.btn {
+  background-color: transparent;
+  outline: none;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+
+html {
+  font-size: calc(100vw/750 * 100);
+  font-size: -webkit-calc(100vw/750 * 100);
+  /* 适配safari */
+  min-height: 0vw;
+  user-select: none;
+}
+
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}

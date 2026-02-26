@@ -1,0 +1,10 @@
+{
+  "/xxx": {
+      "target": "https://xxx.com",
+      "changeOrigin": true
+  },
+  "/common": {
+    "target": "https://xxx.com",
+    "changeOrigin": true
+}
+}

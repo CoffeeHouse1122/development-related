@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>base project</title>
+  <script>
+    var ua = navigator.userAgent || navigator.vendor || window.opera;
+    var isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+    location.href = isMobile ? "./m/index.html" : "./pc/index.html";
+  </script>
+</head>
+
+<body>
+</body>
+
+</html>

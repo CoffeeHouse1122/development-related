@@ -1,0 +1,131 @@
+/* 1. 使用更直观的 box-sizing 模型 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 2. 移除默认 margin */
+* {
+  margin: 0;
+}
+
+/* 3. 允许基于 rem 设置 font-size（更好地支持用户缩放） */
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* 防止iOS横屏时字体放大 */
+}
+
+/* 4. 核心 body 默认值 */
+body {
+  line-height: 1.5;
+  /* 无单位，作为乘数 */
+  -webkit-font-smoothing: antialiased;
+  /* 在MacOS上让字体渲染更平滑 */
+}
+
+/* 5. 媒体元素设置为块级元素 */
+/* img,  导致html2canvas 生成图片 文案错行*/
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  /* 防止图片溢出容器 */
+}
+
+/* 6. 继承表单控件的字体，否则默认不继承 */
+input,
+button,
+textarea,
+select {
+  display: block;
+  font: inherit;
+}
+
+/* 7. 避免文本溢出 */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* 8. 为根元素创建 stacking context，有利于模态框等组件的z-index管理 */
+#root,
+#__next {
+  isolation: isolate;
+}
+
+/* 9. 移除列表默认样式 */
+li,
+ol,
+ul {
+  list-style-type: none;
+}
+
+ul {
+  padding: 0;
+}
+
+/* 10. 处理a标签样式，移除下划线，继承颜色，设置鼠标为指针 */
+a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* 11.自定义样式 */
+.img_100 {
+  display: block;
+  width: 100%;
+  user-select: none;
+}
+
+.btn {
+  background-color: transparent;
+  outline: none;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+
+.disable {
+  cursor: not-allowed;
+  filter: grayscale(1);
+  pointer-events: none;
+}
+
+/* 移除移动端点击蓝色背景 */
+body,
+html {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* 禁止非输入框元素的文本选择和长按菜单 */
+*:not(input):not(textarea) {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 移动端禁止缩放 */
+html, body {
+  touch-action: pan-x pan-y;
+  overscroll-behavior: none;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}

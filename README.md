@@ -3,6 +3,7 @@
 
 ## 项目框架
 - `base-project` : 简单项目框架，例如落地页。
+- `base-project-v2026` : 简单项目框架，例如落地页，2026版本。
 
 - `vue3-project` : vue3项目框架。
 
