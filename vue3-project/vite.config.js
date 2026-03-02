@@ -3,13 +3,25 @@ import { visualizer } from "rollup-plugin-visualizer";
 import legacy from "@vitejs/plugin-legacy";
 import autoprefixer from "autoprefixer";
 
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 
+const isAnalyze = process.env.ANALYZE === "true";
+
+function normalizeBase(base) {
+  if (!base) return "./";
+  if (base === "./" || base === "/") return base;
+  return base.endsWith("/") ? base : `${base}/`;
+}
+
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+  const cdnBase = normalizeBase(env.VITE_CDN_BASE);
+
+  return {
   // 公共路径
-  base: "./",
+  base: mode === "production" ? cdnBase : "./",
 
   // 开发环境
   server: {
@@ -18,22 +30,23 @@ export default defineConfig({
     open: true, // 是否自动在浏览器中打开
     // 可以设置代理
     // proxy: {
-    // '/api': {
-    //   target: '',
-    //   changeOrigin: true,
-    //   rewrite: path => path.replace(/^\/api/, '')
-    // }
+    //   '/api': {
+    //     target: '',
+    //     changeOrigin: true,
+    //     rewrite: path => path.replace(/^\/api/, '')
+    //   }
     // }
   },
 
   // 插件
   plugins: [
     vue(),
-    visualizer({
-      open: false, //在默认用户代理中打开生成的文件
-      gzipSize: true, // 收集 gzip 大小并将其显示
-      brotliSize: true, // 收集 brotli 大小并将其显示
-    }),
+    isAnalyze &&
+      visualizer({
+        open: false, //在默认用户代理中打开生成的文件
+        gzipSize: true, // 收集 gzip 大小并将其显示
+        brotliSize: true, // 收集 brotli 大小并将其显示
+      }),
     legacy({
       targets: [
         "last 2 versions",
@@ -48,7 +61,7 @@ export default defineConfig({
         "not IE <= 11",
       ],
     }),
-  ],
+  ].filter(Boolean),
 
   // 解析
   resolve: {
@@ -95,14 +108,25 @@ export default defineConfig({
       output: {
         // 最小化拆分包
         manualChunks(id) {
-          if (id.includes("node_modules")) {
-            // 通过拆分包的方式将所有来自node_modules的模块打包到单独的chunk中
-            return id
-              .toString()
-              .split("node_modules/")[1]
-              .split("/")[0]
-              .toString();
+          if (!id.includes("node_modules")) return;
+
+          if (id.includes("vue") || id.includes("@vue")) {
+            return "vendor-core";
           }
+
+          if (id.includes("pinia")) {
+            return "vendor-state";
+          }
+
+          if (id.includes("vue-router")) {
+            return "vendor-router";
+          }
+
+          if (id.includes("vue-i18n") || id.includes("@intlify")) {
+            return "vendor-i18n";
+          }
+
+          return "vendor";
         },
         chunkFileNames: "static/js/[name]-[hash].js",
         entryFileNames: "static/js/[name]-[hash].js",
@@ -110,4 +134,5 @@ export default defineConfig({
       },
     },
   },
+};
 });
