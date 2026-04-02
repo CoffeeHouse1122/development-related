@@ -1,5 +1,6 @@
 # 自建 VPN 完整流程（阿里云轻量服务器 + OpenVPN）
 
+
 ## 一、购买服务器
 
 1. 登录 [阿里云轻量应用服务器](https://swas.console.aliyun.com/)
