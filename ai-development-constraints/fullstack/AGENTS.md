@@ -4,7 +4,7 @@
 
 - 本文件放在项目根目录，适用于全栈项目的创建、开发、审查和维护。
 - 用户明确要求优先于本文件；已有项目遵循现有技术栈和目录，不擅自迁移框架或数据库。
-- 信息不足且会影响架构时必须先询问，不得猜测。主要包括：前端语言、UI 方案、数据库、认证方式、部署环境、文件存储、日志和备份策略。
+- 信息不足且会影响架构时必须先询问，不得猜测。主要包括：项目画像、JavaScript/TypeScript、部署环境、前后端运行关系和外部服务。
 - 只修改当前任务需要的文件，不覆盖用户已有改动，不处理无关项目。
 - 分析或审查任务默认只读；用户未要求修复时不得修改代码。
 
@@ -14,7 +14,9 @@
 - 常规小项目后端默认使用 Node.js、Express 和 REST/JSON API。
 - 中大型业务项目默认推荐 TypeScript + NestJS + PostgreSQL；高并发、性能或资源占用敏感的独立服务使用 Go。项目边界不明确时先询问。
 - 包管理默认使用 npm，并提交 `package-lock.json`；不得混用包管理器。
-- JavaScript/TypeScript、SQLite/PostgreSQL、UI 组件库等尚未确定时先询问，不自行决定。
+- 新项目初始化时必须询问使用 JavaScript 还是 TypeScript，不自行选择。
+- 默认使用原生 CSS；只有用户明确指定时才引入 UI 组件库、CSS 预处理器或原子化 CSS 框架。
+- 不设置默认字体；用户未指定时不引入自定义字体文件或字体依赖。
 - 复杂平台、Electron 或 Python/AI 服务不强套普通 Web 全栈结构，应先确认对应项目画像。
 
 ### 2.1 统一 Vite 配置
@@ -51,7 +53,7 @@ Electron 项目根目录统一提供：
 
 ## 3. 新项目初始化
 
-创建项目前先确认：产品目标、用户与权限、部署方式、前后端运行关系、数据库、文件存储、外部服务和第一阶段范围。
+创建项目前先确认：产品目标、用户与权限、JavaScript/TypeScript、部署方式、前后端运行关系、数据库、文件存储、外部服务和第一阶段范围。
 
 默认目录如下，只创建实际需要的目录：
 
@@ -146,7 +148,7 @@ tests/
 - 页面、业务组件、基础组件、composable、store 和 API 层职责分离。
 - API 调用统一通过封装后的 axios request 实例；组件内禁止散落裸 `fetch`、硬编码地址或重复 token 逻辑。
 - 页面覆盖 loading、empty、error、disabled/no-permission 状态。
-- 禁止使用原生 `alert`、`confirm`、`prompt`；自定义下拉必须满足键盘和可访问性要求。
+- 禁止使用原生 `select`、`alert`、`confirm`、`prompt`；自定义下拉必须满足键盘和可访问性要求。
 - 使用设计 token 统一颜色、间距、字体、圆角和状态语义。
 - 前端动画库统一使用 GSAP，不再引入其他 JavaScript 动画库；简单 hover、focus 和显隐过渡可使用 CSS。
 - GSAP 动画优先使用 transform 和 opacity；组件卸载时清理 context、timeline、ScrollTrigger 和事件监听，并适配 `prefers-reduced-motion`。
@@ -165,12 +167,24 @@ tests/
 - 后台任务明确状态、幂等、失败重试和恢复策略。
 - 不吞异常，不把堆栈、SQL、secret 或内部路径直接返回给客户端。
 
+### 6.1 认证与会话
+
+- 普通全栈 Web 默认使用服务端 Session；会话标识通过 `HttpOnly`、`SameSite` Cookie 传递，外网 HTTPS 环境同时启用 `Secure`。
+- Electron 和独立 API 默认使用短期 JWT Access Token + 可轮换 Refresh Token；JWT Payload 不含敏感数据，Access Token 只存内存，Refresh Token 不得明文存入 SQLite 或 Web Storage。
+- axios 仅在 JWT 模式下注入 Access Token；并发 `401` 合并为一次刷新，每个请求最多刷新并重试一次。
+- 退出时服务端撤销 Session 或 Refresh Token 并清除客户端状态；认证不替代服务端授权校验。
+
 ## 7. 数据库与文件
 
-- 数据库未确定时先询问；不得因为个人默认值替换项目已有数据库。
+- 新项目按项目画像选择数据库：小型项目使用 SQLite，中大型 NestJS 项目使用 PostgreSQL；已有项目不得擅自更换数据库，边界不明确时先询问。
 - schema 变更通过 migration，禁止启动时静默执行破坏性变更。
 - 查询必须参数化；事务覆盖需要原子完成的多步写入。
-- 核心数据包含创建和更新时间；命名、主键和软删除策略由项目确认后统一。
+- SQLite 默认使用 `better-sqlite3` 或 `DatabaseSync` + 参数化原生 SQL，通过 repository 隔离数据访问，不引入 ORM。
+- NestJS + PostgreSQL 默认使用 TypeORM；生产环境禁止 `synchronize: true`，结构变化必须通过 migration。
+- 数据库表名和字段名使用 `snake_case`，代码变量使用 `camelCase`，类使用 `PascalCase`；原生 SQL 只能位于 repository。
+- 跨设备同步、离线数据和对外业务实体使用 UUID；纯本地 SQLite 内部表可以使用 `INTEGER PRIMARY KEY`。
+- 默认真实删除；只有明确需要恢复、审计或保留引用时才使用 `deleted_at` 软删除。
+- 核心数据包含 `created_at`、`updated_at`，时间统一以 UTC 保存。
 
 ### 7.1 SQLite 同步 API
 
@@ -185,9 +199,11 @@ tests/
 - 禁止在一次业务操作中无保护地同时写入两个数据库；同步机制必须定义 UUID、版本号、更新时间、幂等键、删除标记、失败重试和冲突解决策略。
 - PostgreSQL 集成测试使用真实 PostgreSQL 测试实例，不得使用 SQLite 替代。
 
+- 文件默认存储在环境配置指定的本地根目录，并按 `YYYY/MM/DD` 分类；Electron 文件存入系统 `userData`，用户明确指定时才改用对象存储。
 - 上传文件限制类型、MIME、大小和数量；服务端生成文件名并防止路径穿越。
 - 上传、生成文件、数据库、备份和运行数据不得存入源码目录或提交 Git。
-- 日志与备份时间、目录和保留周期尚未确认时先询问，不自行硬编码。
+- 数据库每日 `02:30` 自动备份到配置的备份目录，保留最近 7 天。
+- 日志写入配置的本地日志根目录并按日期分类，access、app、error 和进程日志职责分离，保留最近 180 天。
 
 ## 8. 日志、安全与环境配置
 
@@ -195,12 +211,13 @@ tests/
 - access、app、error 和进程日志职责分离；敏感字段统一脱敏。
 - 密码、token、cookie、authorization、secret、api key、client secret 和私钥不得进入源码、日志、响应、文档或 Git。
 - 真实 `.env` 不提交；前后端分别提供 `.env.example`，每个变量写明用途、是否必填和示例值。
-- 生产及承载账号、密码、token 的环境是否强制 HTTPS 尚未最终确认；未确认前不得把前端加密描述为 TLS 的替代方案。
+- 内网全栈项目允许使用 HTTP；账号、密码等敏感请求参数按前后端约定先进行应用层加密，但不得将其描述为 TLS 的替代方案，并须记录 Session/Token 仍可能被截获的风险。
+- 外网前端及任何互联网公开服务必须使用 HTTPS。
 - 文件、接口和数据库操作遵循最小权限；安全例外必须记录原因和替代防护。
 
 ## 9. 代码质量与测试
 
-- 注释解释业务原因、边界和重要决策，不逐行翻译代码；语言未确认时跟随当前项目。
+- 注释默认使用英文，解释业务原因、边界和重要决策，不逐行翻译代码。
 - 不用禁用规则、删除测试、空脚本或滥用 `any` 让检查通过。
 - bug 修复必须补回归测试；业务计算、权限、数据转换和 repository 必须有单元测试。
 - API 至少覆盖成功、参数错误、未认证/无权限和内部失败路径。
