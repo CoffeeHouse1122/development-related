@@ -15,6 +15,7 @@
 - JavaScript/TypeScript 尚未确定时先询问，不自行选择。
 - 项目已有 UI、图标、字体和动画体系时继续沿用，不重复引入第二套方案。
 - 新项目的图标默认优先考虑 Remix Icon；其他视觉选项未确认时先询问。
+- 新项目的前端动画库统一使用 GSAP，不再引入其他 JavaScript 动画库。
 
 ### 2.1 统一 Vite 配置
 
@@ -91,6 +92,9 @@ vite.config.js|ts
 - 自定义下拉必须支持键盘、焦点和可访问性；是否全面禁止原生 `select` 尚未确认时先询问。
 - 所有功能覆盖 loading、empty、error、disabled/no-permission 状态。
 - 按钮和可交互元素必须有 hover、focus、disabled 和 loading 反馈。
+- 简单 hover、focus 和显隐过渡可使用 CSS；时间线、滚动、手势和复杂编排使用 GSAP。
+- GSAP 动画优先使用 transform 和 opacity；组件卸载时必须清理 context、timeline、ScrollTrigger 和事件监听。
+- 动画必须适配 `prefers-reduced-motion`，不能阻断核心操作或降低内容可访问性。
 - 不捏造生产数据、指标和 AI 结论；Mock 数据必须明确标记且仅用于开发或测试。
 - `v-html`/`dangerouslySetInnerHTML` 只能渲染可信静态内容；外部或用户内容未经可靠净化禁止注入。
 - 响应式页面至少验证目标桌面宽度和一个窄屏宽度。
@@ -118,5 +122,9 @@ vite.config.js|ts
 - README 至少包含项目目的、环境要求、配置、启动、构建和验证命令。
 - public API、目录架构、部署方式或关键交互发生变化时同步更新文档。
 - 不提交 `node_modules`、构建产物、缓存、日志、真实 `.env` 和临时文件。
-- Git 自动 init/commit 策略尚未确认；用户未明确时不执行 `git init`、commit 或 push。
+- 每次修改代码或项目文件并通过必要验证后，必须自动执行 Git 提交，无需用户另行要求。
+- 当前项目不是 Git 仓库时先执行 `git init`；没有实际文件变化时不创建空提交。
+- 提交前执行 `git status` 并检查敏感信息与忽略项，再执行 `git add -A` 和 `git commit -m "<简短明确的提交说明>"`。
+- 提交说明根据本次修改自动生成；最终回复必须包含 commit hash。
+- 严禁自动 `git push` 到远程仓库。
 - 最终回复必须说明完成内容、修改文件、实际验证、未验证项、假设和剩余风险。

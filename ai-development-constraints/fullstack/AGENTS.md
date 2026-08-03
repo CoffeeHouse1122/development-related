@@ -148,6 +148,8 @@ tests/
 - 页面覆盖 loading、empty、error、disabled/no-permission 状态。
 - 禁止使用原生 `alert`、`confirm`、`prompt`；自定义下拉必须满足键盘和可访问性要求。
 - 使用设计 token 统一颜色、间距、字体、圆角和状态语义。
+- 前端动画库统一使用 GSAP，不再引入其他 JavaScript 动画库；简单 hover、focus 和显隐过渡可使用 CSS。
+- GSAP 动画优先使用 transform 和 opacity；组件卸载时清理 context、timeline、ScrollTrigger 和事件监听，并适配 `prefers-reduced-motion`。
 - 前端变量全部视为公开信息，禁止包含任何服务端秘密。
 - `v-html`/`dangerouslySetInnerHTML` 不得渲染未经可靠净化的外部或用户内容。
 - `App.vue` 和页面组件不得持续堆积全部业务；发现明显过大时先给出拆分方案。
@@ -169,6 +171,20 @@ tests/
 - schema 变更通过 migration，禁止启动时静默执行破坏性变更。
 - 查询必须参数化；事务覆盖需要原子完成的多步写入。
 - 核心数据包含创建和更新时间；命名、主键和软删除策略由项目确认后统一。
+
+### 7.1 SQLite 同步 API
+
+- 本地、单用户、低并发项目允许使用 `better-sqlite3`、`DatabaseSync` 等同步 API，但仅执行有索引的短查询和短事务。
+- 禁止在 Node.js HTTP 请求链或 Electron main 中执行不受数据量限制的全表扫描、批量导入导出、复杂统计、迁移和备份；此类任务移至 Worker Thread、Electron `utilityProcess` 或独立服务。
+- Electron renderer 禁止直接访问 SQLite，必须通过最小化、可校验的 IPC 接口调用；不得用 `async/await` 包装同步 API 并将其视为非阻塞操作。
+- 出现明显事件循环阻塞、持续写锁竞争或多实例并发写入时，改用异步访问方案或 PostgreSQL。
+
+### 7.2 SQLite 与 PostgreSQL
+
+- 同一项目可以同时使用 SQLite 和 PostgreSQL，但必须明确数据所有权：SQLite 用于 Electron 本地数据、离线缓存和待同步队列，PostgreSQL 用于服务端权威数据；不需要离线或本地持久化时不额外引入 SQLite。
+- 禁止在一次业务操作中无保护地同时写入两个数据库；同步机制必须定义 UUID、版本号、更新时间、幂等键、删除标记、失败重试和冲突解决策略。
+- PostgreSQL 集成测试使用真实 PostgreSQL 测试实例，不得使用 SQLite 替代。
+
 - 上传文件限制类型、MIME、大小和数量；服务端生成文件名并防止路径穿越。
 - 上传、生成文件、数据库、备份和运行数据不得存入源码目录或提交 Git。
 - 日志与备份时间、目录和保留周期尚未确认时先询问，不自行硬编码。
@@ -197,5 +213,9 @@ tests/
 - README 至少包含项目目的、架构、环境要求、配置、启动、构建、迁移、验证和部署方式。
 - API、数据库、认证、目录架构或部署方式变化时同步更新对应文档。
 - 不提交依赖目录、构建产物、安装包、缓存、日志、真实环境文件、数据库、上传和临时文件。
-- Git 自动 init/commit 策略尚未确认；用户未明确时不执行 `git init`、commit 或 push。
+- 每次修改代码或项目文件并通过必要验证后，必须自动执行 Git 提交，无需用户另行要求。
+- 当前项目不是 Git 仓库时先执行 `git init`；没有实际文件变化时不创建空提交。
+- 提交前执行 `git status` 并检查敏感信息与忽略项，再执行 `git add -A` 和 `git commit -m "<简短明确的提交说明>"`。
+- 提交说明根据本次修改自动生成；最终回复必须包含 commit hash。
+- 严禁自动 `git push` 到远程仓库。
 - 最终回复必须说明完成内容、修改文件、迁移影响、实际验证、未验证项、假设和剩余风险。
