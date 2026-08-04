@@ -18,6 +18,8 @@
 - 新项目图标默认使用 Remix Icon。
 - 不设置默认字体；用户未指定时不引入自定义字体文件或字体依赖。
 - 新项目的前端动画库统一使用 GSAP，不再引入其他 JavaScript 动画库。
+- Vue Router 和 Pinia 均按需安装：存在客户端路由时才安装 Vue Router；存在跨页面共享、复杂全局或持久化状态时才安装 Pinia；页面局部状态使用组件状态或 composable。
+- 新项目不预设 ESLint、Vitest、Vue Test Utils 或 Playwright；用户明确要求或项目实际需要时再按需引入。
 
 ### 2.1 统一 Vite 配置
 
@@ -37,10 +39,9 @@
 
 所有前端项目统一使用以下命令名，不得用 `serve`、`watch` 等名称替代：
 
-- 开发与构建：`dev`、`build`、`preview`。
-- 质量检查：`lint`、`test`、`check`；TypeScript 或启用 checkJs 时提供 `typecheck`。
-- `check` 依次执行适用的 lint、typecheck、test、build。
-- 可以增加业务命令，但不得用空脚本或固定成功输出来伪造统一命令。
+- 必须提供 `dev`、`build`、`preview` 和 `check`。
+- `lint`、`test`、`typecheck` 仅在项目实际引入对应工具时提供；未引入时不得创建空脚本占位。
+- `check` 聚合项目实际具备的检查并执行 `build`；可以增加业务命令，但不得用空脚本或固定成功输出来伪造命令。
 
 ## 3. 新项目初始化
 
@@ -58,15 +59,15 @@ src/
     business/              可复用业务组件
   composables/             可复用状态和交互逻辑
   layouts/                 页面布局
-  router/                  路由配置，确有多页面时创建
-  stores/                  跨页面状态，确有需要时创建
+  router/                  使用 Vue Router 时创建
+  stores/                  使用 Pinia 时创建
   styles/                  token、主题和全局样式
   types/                   TypeScript 类型，使用 TS 时创建
   utils/                   无副作用的通用函数
   views/                   路由页面
   App.vue
   main.js|ts
-tests/                     自动化测试
+tests/                     实际引入测试工具时创建
 docs/                      架构或复杂功能说明
 .env.example
 .gitignore
@@ -117,8 +118,8 @@ vite.config.js|ts
 - 注释默认使用英文，说明业务原因、边界和重要决策，不逐行翻译代码。
 - 命名表达业务含义，禁止无意义的 `data1`、`temp2`、`handleThing`。
 - 不吞异常，不用禁用规则、删除测试或滥用 `any` 让检查通过。
-- bug 修复必须补回归测试；计算、解析、权限判断和数据转换等核心逻辑必须有单元测试。
-- 项目提供适用的 `lint`、`typecheck`、`test`、`build` 和统一 `check` 脚本。
+- 项目已有测试体系时，bug 修复必须补回归测试，计算、解析、权限判断和数据转换等核心逻辑必须有单元测试；尚无测试体系而任务需要自动化测试时，先询问是否引入。
+- `build` 和统一 `check` 必须真实可执行；只提供项目实际具备的 `lint`、`typecheck` 和 `test` 脚本。
 - 交付前执行与改动相关的检查；未执行的检查及原因必须明确说明。
 
 ## 8. 文档、Git 与交付
