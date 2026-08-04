@@ -12,12 +12,13 @@
 
 - 前端默认使用 Vue 3、Vite、axios、Composition API 和 ESM。
 - 常规小项目后端默认使用 Node.js、Express 和 REST/JSON API。
-- 中大型业务项目默认推荐 TypeScript + NestJS + PostgreSQL；高并发、性能或资源占用敏感的独立服务使用 Go。项目边界不明确时先询问。
-- 包管理默认使用 npm，并提交 `package-lock.json`；不得混用包管理器。
+- 中大型业务项目默认推荐 TypeScript + NestJS + PostgreSQL；AI、数据和算法型后端使用 Python + FastAPI；高并发、性能或资源占用敏感的独立服务使用 Go。项目边界不明确时先询问。
+- Node.js 和前端包管理默认使用 npm，并提交 `package-lock.json`；不得混用包管理器。
+- FastAPI 项目初始化时确认 Python 依赖管理方式；依赖必须完整声明并固定版本，不得混用 `requirements.txt`、Poetry、uv 等多套方案。
 - 新项目初始化时必须询问使用 JavaScript 还是 TypeScript，不自行选择。
 - 默认使用原生 CSS；只有用户明确指定时才引入 UI 组件库、CSS 预处理器或原子化 CSS 框架。
 - 不设置默认字体；用户未指定时不引入自定义字体文件或字体依赖。
-- 复杂平台、Electron 或 Python/AI 服务不强套普通 Web 全栈结构，应先确认对应项目画像。
+- Electron、Python/FastAPI 或 Go 独立服务不强套普通 Web 全栈结构，应使用对应项目画像。
 
 ### 2.1 统一 Vite 配置
 
@@ -41,6 +42,7 @@ Web 前端和 Electron renderer 使用同一套 Vite 基线：
 - 开发：`dev` 同时启动前后端；`dev:frontend`、`dev:backend` 分别启动。
 - 构建：`build` 完整构建；`build:frontend`、`build:backend` 分别构建；`start` 启动生产服务。
 - 检查：`lint`、`test`、`check`；适用时提供 `typecheck`。`check` 聚合所有实际检查和完整构建。
+- FastAPI 后端继续使用上述根命令名；`dev:backend`、`start` 调用实际 Python 服务，`build:backend` 执行真实的导入/部署校验或制品构建，不得使用空脚本代替。
 
 Electron 项目根目录统一提供：
 
@@ -106,7 +108,33 @@ README.md
 package.json                 可选：统一启动和检查脚本
 ```
 
-初始化完成后必须具备：前后端最小可运行骨架、健康检查 API、统一请求层、配置校验、错误处理、日志入口、数据库迁移机制、验证脚本和 README。不得生成无业务价值的示例模块或虚假数据。
+初始化完成后必须具备：前后端最小可运行骨架、健康检查 API、统一请求层、配置校验、错误处理、日志入口、验证脚本和 README；使用数据库时必须提供迁移机制。不得生成无业务价值的示例模块或虚假数据。
+
+### 3.1 Python + FastAPI 项目
+
+AI、数据或算法是主要能力时，FastAPI 可以独立承担完整后端；普通复杂业务仍使用 NestJS，混合项目由 NestJS 承担主业务、FastAPI 提供独立 AI/数据服务。
+
+```text
+backend/
+  app/
+    api/                     路由和 HTTP 输入输出
+    core/                    配置、安全、日志和生命周期
+    schemas/                 Pydantic 请求与响应模型
+    services/                业务、AI 和数据流程
+    repositories/            数据与外部服务访问
+    models/                  数据库模型
+    jobs/                    后台和定时任务
+    main.py                  FastAPI 应用入口
+  migrations/
+  tests/
+  .env.example
+  requirements.txt|pyproject.toml
+```
+
+- route 只处理协议边界，Pydantic schema 负责验证，service 组织业务，repository 隔离数据库和外部服务。
+- `async def` 只调用支持 `await` 的 I/O；同步阻塞 I/O 不得占用事件循环，CPU 密集计算、模型推理和长任务移至 Worker、进程池、任务队列或独立服务。
+- 生产使用 Uvicorn；Worker 数量、容器副本和连接池必须通过压测确定，多进程共享状态存入数据库或 Redis，不使用进程内全局变量。
+- Python 代码使用类型标注；API、核心 service 和 repository 必须覆盖自动化测试。
 
 ## 4. Electron 桌面项目
 
